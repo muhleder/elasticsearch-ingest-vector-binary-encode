@@ -1,5 +1,6 @@
 # Elasticsearch Vector Binary Encoding Ingest Processor
 
+Built on Elasticsearch 6.1.2
 
 ## Usage
 
@@ -10,9 +11,13 @@ PUT _ingest/pipeline/binary-vector-pipeline
   "description": "A pipeline to encode vectors as binary.",
   "processors": [
     {
-      "vector_binary_encode" : {
-        "source" : "vector",
-        "target" : "vector_binary"
+      "vector_binary_encode": {
+        "targets": [
+          {
+            "source": "vector",
+            "target": "vector_binary"
+          }
+        ]
       }
     }
   ]

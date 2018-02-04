@@ -22,38 +22,32 @@ import org.elasticsearch.ingest.IngestDocument;
 import org.elasticsearch.ingest.Processor;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.Base64;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.elasticsearch.ingest.ConfigurationUtils.readStringProperty;
+import static org.elasticsearch.ingest.ConfigurationUtils.readList;
 
 public class BinaryEncodeProcessor extends AbstractProcessor {
 
     public static final String TYPE = "vector_binary_encode";
 
-    private final String source;
-    private final String target;
+    private final List<LinkedHashMap<String,String>> targets;
 
-    private BinaryEncodeProcessor(String tag, String source, String target) throws IOException {
+    private BinaryEncodeProcessor(String tag, List<LinkedHashMap<String,String>> targets) throws IOException {
         super(tag);
-        this.source = source;
-        this.target = target;
+        this.targets = targets;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void execute(IngestDocument ingestDocument) throws Exception {
-        List<Double> vector_list = ingestDocument.getFieldValue(source, List.class, true);
-        if (vector_list != null) {
-            double[] vector = new double[vector_list.size()];
-            for (int i = 0; i < vector_list.size(); i++) {
-                vector[i] = vector_list.get(i);
-            }
-            String value = encodeVector(vector);
-            ingestDocument.setFieldValue(target, value);
+        // TODO check these when processor is initialised.
+        for (LinkedHashMap<String, String> pair : targets) {
+            String source = pair.get("source");
+            String destination = pair.get("destination");
+            processField(ingestDocument, source, destination);
         }
     }
 
@@ -66,9 +60,21 @@ public class BinaryEncodeProcessor extends AbstractProcessor {
         @Override
         public BinaryEncodeProcessor create(Map<String, Processor.Factory> factories, String tag, Map<String, Object> config)
                 throws Exception {
-            String source = readStringProperty(TYPE, tag, config, "source");
-            String target = readStringProperty(TYPE, tag, config, "target");
-            return new BinaryEncodeProcessor(tag, source, target);
+            List<LinkedHashMap<String,String>> targets = readList(TYPE, tag, config, "targets");
+            return new BinaryEncodeProcessor(tag, targets);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void processField(IngestDocument ingestDocument, String source, String destination) {
+        List<Double> vector_list = ingestDocument.getFieldValue(source, List.class, true);
+        if (vector_list != null) {
+            double[] vector = new double[vector_list.size()];
+            for (int i = 0; i < vector_list.size(); i++) {
+                vector[i] = vector_list.get(i);
+            }
+            String value = encodeVector(vector);
+            ingestDocument.setFieldValue(destination, value);
         }
     }
 
