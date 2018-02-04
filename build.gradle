@@ -1,0 +1,9 @@
+
+esplugin {
+  description 'Ingest processor encodes a vector to a binary field'
+  classname 'com.gosololaw.elasticsearch.IngestVectorBinaryEncodePlugin'
+}
+
+
+project.licenseFile= file('LICENSE.txt')
+project.noticeFile= file('NOTICE.txt')

@@ -1,0 +1,14 @@
+.idea/
+.gradle/
+build/
+build-idea/
+out/
+*.swp
+*-execution-hints.log
+*-execution-times.log
+
+// intellij
+*.iml
+*.ipr
+*.iws
+

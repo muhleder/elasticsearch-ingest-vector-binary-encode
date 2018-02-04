@@ -1,0 +1,2 @@
+Elasticsearch ingest Vector Binary Encode Plugin
+Copyright 2009-2017 Mark Muhleder
